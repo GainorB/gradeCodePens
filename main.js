@@ -88,12 +88,12 @@ function codePen({ data, username, openTabs }) {
 // STATS PRINTED TO CONSOLE
 function stats(students, classNumber) {
   log(chalk.green.bgBlack(`------------------------------`));
-  log(chalk.green.bgBlack(`STATS`));
+  log(chalk.green.bgBlack(`${classNumber} STATS`));
   log(chalk.green.bgBlack(`------------------------------`));
   log(`# OF STUDENTS IN CLASS: `, students.length);
   log(`# OF FOUND PROJECTS: `, FOUNDPROJECTS.length);
   if (FAILEDPROJECTS > 0) {
-    log(`# OF INCORRECTLY NAMED PROJECTS (NOT FOUND): `, FAILEDPROJECTS);
+    log(`# OF INCORRECTLY NAMED PROJECTS: `, FAILEDPROJECTS);
     log(`STUDENTS WHO DIDN'T NAME PROJECT CORRECTLY: `, FAILEDSTUDENTS);
   }
   if (REJECTED > 0) {
