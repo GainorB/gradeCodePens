@@ -103,7 +103,9 @@ function stats(students, classNumber) {
   log(chalk.green.bgBlack(`------------------------------`));
 
   // CREATE OUTPUT FOLDER IF IT DOESN'T EXIST
-  fs.existsSync('output') || fs.mkdirSync('output');
+  if (!fs.existsSync('output')) {
+    fs.mkdirSync('output');
+  }
   // CREATE FILE
   fs.writeFile(`./output/${classNumber}-${date()}.json`, JSON.stringify(FOUNDPROJECTS, null, 3), err => {
     if (err) throw err;
@@ -140,12 +142,11 @@ function go({ classNumber, keyword, openTabs }) {
   });
 }
 
-program.version('1.0.0').description('Check students Capstone Projects in CodePen');
+program.version('1.0.0').description('Searches student codePen accounts for a specific assignment.');
 
 program
   .command('grade')
   .alias('g')
-  .description('Check a class for the assignment')
   .action(() => {
     prompt(questions).then(answers => {
       go(answers);
