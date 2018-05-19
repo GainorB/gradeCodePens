@@ -1,0 +1,22 @@
+# always ignore :)
+.DS_Store
+/node_modules
+/output
+
+# environments
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# next.js build output
+.next
+
+# project specific ignores
+.cache
+
+# misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
