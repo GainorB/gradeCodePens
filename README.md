@@ -38,7 +38,7 @@ gradecodepens g
 
 ## ./OUTPUT/
 
-This folder will contain .json files corresponding to the classes you searched for, in the following format: [CLASS NUMBER]-[DATE].json.
+This folder will contain .json files corresponding to the classes you searched for, in the following format: [CLASS NUMBER]-[DATE]at[TIMESTAMP].json.
 
 Sample structure:
 
