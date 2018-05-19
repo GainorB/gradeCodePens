@@ -24,6 +24,12 @@ need to run: `npm link` to set up a system link
 gradecodepens grade
 ```
 
+or
+
+```javascript
+gradecodepens g
+```
+
 ## NEXT
 
 1.  Insert the class number (ex: 503)
