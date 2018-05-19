@@ -1,6 +1,6 @@
 ## TO RUN
 
-1.  npm i or npm install dependencies
+1.  npm i or npm install
 
 ## THEN
 
@@ -10,13 +10,15 @@ In Terminal
 node main.js grade
 ```
 
+or
+
 ```javascript
 node main.js g
 ```
 
 or
 
-need to run: `npm link` to set up system link
+need to run: `npm link` to set up a system link
 
 ```javascript
 gradecodepens grade
