@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const axios = require('axios');
+const json2xls = require('json2xls');
 const fs = require('fs');
 const chalk = require('chalk');
 const { prompt } = require('inquirer');
@@ -23,6 +24,7 @@ const questions = [
   { type: 'input', name: 'classNumber', message: 'Which class (#)?' },
   { type: 'input', name: 'keyword', message: 'Name of the project?' },
   { type: 'input', name: 'openTabs', message: 'Open found projects in new tabs? (Y/N)' },
+  { type: 'input', name: 'jsonOrExcel', message: 'Create spreadsheet? (Y/N)' },
 ];
 
 // ERROR HANDLER
@@ -49,11 +51,6 @@ try {
   return handleErrors('', e.message);
 }
 
-// TODO: Get HTML/CSS content from codePen
-// TODO: Possibly connect to Remind API (if one exists) to automatically alert parents, etc..
-// TODO: Possibly export to Excel or Google Sheets?
-// TODO: Possibly..
-
 // IF PROJECT IS FOUND INSERT INTO THIS ARRAY
 const FOUNDPROJECTS = [];
 
@@ -67,17 +64,28 @@ const REJECTEDSTUDENTS = [];
 
 // FORMAT DATE TO APPEND TO FILE CREATED
 function date() {
-  return moment().format('M[-]D[-]YYYY [at] h:mm:ss');
+  return moment().format('MM[-]DD[-]YYYY');
+}
+
+// FETCH HTML
+function downloadHTML({ html }) {
+  return axios.get(html);
+}
+
+// FETCH CSS
+function downloadCSS({ css }) {
+  return axios.get(css);
 }
 
 // PARSE AND FILTER DATA FROM API
-function codePen({ data, username, openTabs }) {
+function codePen({ data, username, openTabs, classNumber }) {
   // FILTER ARRAY OF PENS TO GET SPECIFIC PROJECT
   if (data !== undefined) {
     const project = data.filter(pen => pen.title === theKeyword).map(pen => ({
-      link: pen.link,
       student: pen.user.username,
-      screenshot: pen.images.large,
+      link: pen.link,
+      html: `${pen.link}.html`,
+      css: `${pen.link}.css`,
     }))[0];
 
     if (project !== undefined) {
@@ -86,6 +94,27 @@ function codePen({ data, username, openTabs }) {
         // OPEN PROJECT LINK IN NEW TAB IN DEFAULT BROWSER
         opn(project.link, { wait: false });
       }
+
+      // CREATE OUTPUT FOLDER IF IT DOESN'T EXIST
+      if (!fs.existsSync('output')) {
+        fs.mkdirSync('output');
+      }
+
+      const folderName = `${classNumber}-${date()}`;
+
+      if (!fs.existsSync(`output/${folderName}`)) {
+        fs.mkdirSync(`output/${folderName}`);
+      }
+
+      axios
+        .all([downloadHTML(project), downloadCSS(project)])
+        .then(
+          axios.spread((html, css) => {
+            fs.writeFileSync(`./output/${folderName}/${project.student}.html`, html.data);
+            fs.writeFileSync(`./output/${folderName}/${project.student}.css`, css.data);
+          })
+        )
+        .catch(err => handleErrors('', err));
     } else {
       FAILEDPROJECTS += 1;
       FAILEDSTUDENTS.push(username);
@@ -97,9 +126,9 @@ function codePen({ data, username, openTabs }) {
 }
 
 // STATS PRINTED TO CONSOLE
-function stats(students, classNumber) {
+function stats(students, classNumber, jsonOrExcel) {
   log(chalk.green(`------------------------------`));
-  log(chalk.green(`${classNumber} STATS`));
+  log(chalk.green(`${classNumber} INFORMATION`));
   log(chalk.green(`------------------------------`));
   log(chalk.magenta(`# OF STUDENTS IN CLASS: `), students.length);
   log(chalk.magenta(`# OF FOUND PROJECTS: `), FOUNDPROJECTS.length);
@@ -115,20 +144,19 @@ function stats(students, classNumber) {
   }
   log(chalk.green(`------------------------------`));
 
-  // CREATE OUTPUT FOLDER IF IT DOESN'T EXIST
-  if (!fs.existsSync('output')) {
-    fs.mkdirSync('output');
+  // CREATE A EXCELL FILE
+  if (jsonOrExcel.toLowerCase() === 'y') {
+    const xls = json2xls(FOUNDPROJECTS);
+    const folderName = `${classNumber}-${date()}`;
+    fs.writeFile(`./output/${folderName}/projects.xlsx`, xls, 'binary', err => {
+      if (err) handleErrors('', err);
+      log(`Spreadsheet created.`);
+    });
   }
-
-  // CREATE FILE
-  fs.writeFile(`./output/${classNumber}-${date()}.json`, JSON.stringify(FOUNDPROJECTS, null, 2), err => {
-    if (err) handleErrors('', err);
-    log(`${classNumber}-${date()}.json created successfully`);
-  });
 }
 
 // GO
-function go({ classNumber, keyword, openTabs }) {
+function go({ classNumber, keyword, openTabs, jsonOrExcel }) {
   // SELECTED CLASS
   const students = allStudents[classNumber];
   // DETERMINES WHEN THE CALLBACK IS CALLED
@@ -145,10 +173,10 @@ function go({ classNumber, keyword, openTabs }) {
       })
       .then(res => {
         const username = res.request._redirectable._options.pathname.split('/')[3];
-        codePen({ data: res.data.data, username, openTabs });
+        codePen({ data: res.data.data, username, openTabs, classNumber });
         counter -= 1;
         if (counter === 0) {
-          stats(students, classNumber);
+          stats(students, classNumber, jsonOrExcel);
         }
       })
       .catch(err => handleErrors('', err));

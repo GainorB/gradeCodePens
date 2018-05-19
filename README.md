@@ -18,7 +18,7 @@ node main.js g
 
 or
 
-need to run: `npm link` to set up a system link
+first run to setup system link: `npm link`
 
 ```javascript
 gradecodepens grade
@@ -35,20 +35,11 @@ gradecodepens g
 1.  Insert the class number (ex: 503)
 2.  Insert the name of the project you want to find. Case sensitive.
 3.  Open found projects in new tabs? (Y/N)
+4.  Create spreadsheet? (Y/N)
 
 ## ./OUTPUT/
 
-This folder will contain .json files corresponding to the classes you searched for, in the following format: [CLASS NUMBER]-[DATE]at[TIMESTAMP].json.
-
-Sample structure:
-
-```javascript
-   {
-      "link": "https://codepen.io/ANUR2021/pen/MGBEgM",
-      "student": "ANUR2021",
-      "screenshot": "http://codepen.io/ANUR2021/pen/MGBEgM/image/large.png"
-   },
-```
+This folder will contain a subfolder with the class number appended with a timestamp, inside of this folder you will have the html and css content from each students project.
 
 ## STATS
 
