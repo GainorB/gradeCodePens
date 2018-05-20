@@ -69,20 +69,24 @@ function date() {
 
 // FETCH HTML
 function downloadHTML({ html }) {
-  return axios.get(html);
+  return axios.get(html, {
+    timeout: 10000,
+  });
 }
 
 // FETCH CSS
 function downloadCSS({ css }) {
-  return axios.get(css);
+  return axios.get(css, {
+    timeout: 10000,
+  });
 }
 
 // PARSE AND FILTER DATA FROM API
-function codePen({ data, username, openTabs, classNumber }) {
+function codePen({ data, username, openTabs, classNumber, niceName }) {
   // FILTER ARRAY OF PENS TO GET SPECIFIC PROJECT
   if (data !== undefined) {
     const project = data.filter(pen => pen.title === theKeyword).map(pen => ({
-      student: pen.user.username,
+      student: username,
       link: pen.link,
       html: `${pen.link}.html`,
       css: `${pen.link}.css`,
@@ -110,8 +114,11 @@ function codePen({ data, username, openTabs, classNumber }) {
         .all([downloadHTML(project), downloadCSS(project)])
         .then(
           axios.spread((html, css) => {
-            fs.writeFileSync(`./output/${folderName}/${project.student}.html`, html.data);
-            fs.writeFileSync(`./output/${folderName}/${project.student}.css`, css.data);
+            if (!fs.existsSync(`output/${folderName}/${niceName}`)) {
+              fs.mkdirSync(`output/${folderName}/${niceName}`);
+            }
+            fs.writeFileSync(`./output/${folderName}/${niceName}/${niceName}.html`, html.data);
+            fs.writeFileSync(`./output/${folderName}/${niceName}/${niceName}.css`, css.data);
           })
         )
         .catch(err => handleErrors('', err));
@@ -155,6 +162,20 @@ function stats(students, classNumber, jsonOrExcel) {
   }
 }
 
+// GET ALL PENS BY USERNAME
+function getPens(username) {
+  return axios.get(`https://cpv2api.com/pens/public/${username}`, {
+    timeout: 10000,
+  });
+}
+
+// GET ACTUAL NAME OF USERNAME
+function getNiceName(username) {
+  return axios.get(`https://cpv2api.com/profile/${username}`, {
+    timeout: 10000,
+  });
+}
+
 // GO
 function go({ classNumber, keyword, openTabs, jsonOrExcel }) {
   // SELECTED CLASS
@@ -168,17 +189,16 @@ function go({ classNumber, keyword, openTabs, jsonOrExcel }) {
   // LOOP THROUGH STUDENTS AND HIT API
   students.forEach(name => {
     axios
-      .get(`https://cpv2api.com/pens/public/${name}`, {
-        timeout: 10000,
-      })
-      .then(res => {
-        const username = res.request._redirectable._options.pathname.split('/')[3];
-        codePen({ data: res.data.data, username, openTabs, classNumber });
-        counter -= 1;
-        if (counter === 0) {
-          stats(students, classNumber, jsonOrExcel);
-        }
-      })
+      .all([getPens(name), getNiceName(name)])
+      .then(
+        axios.spread((pens, names) => {
+          codePen({ data: pens.data.data, username: name, openTabs, classNumber, niceName: names.data.data.nicename });
+          counter -= 1;
+          if (counter === 0) {
+            stats(students, classNumber, jsonOrExcel);
+          }
+        })
+      )
       .catch(err => handleErrors('', err));
   });
 }

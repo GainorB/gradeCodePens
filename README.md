@@ -1,8 +1,8 @@
-## TO RUN
+# Installing
 
 1.  npm i or npm install
 
-## THEN
+# To Run
 
 In Terminal
 
@@ -18,7 +18,7 @@ node main.js g
 
 or
 
-first run to setup system link: `npm link`
+setup system link by running: `npm link`
 
 ```javascript
 gradecodepens grade
@@ -39,7 +39,7 @@ gradecodepens g
 
 ## ./OUTPUT/
 
-This folder will contain a subfolder with the class number appended with a timestamp, inside of this folder you will have the html and css content from each students project.
+This folder will contain a subfolder with the class number appended with a timestamp, inside of this folder you will have folders named after a students username/name and inside this folder the html and css content from each students project.
 
 ## STATS
 
