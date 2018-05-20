@@ -142,12 +142,12 @@ function stats(students, classNumber, jsonOrExcel) {
 
   if (FAILEDPROJECTS > 0) {
     log(chalk.magenta(`# OF INCORRECTLY NAMED PROJECTS: `), FAILEDPROJECTS);
-    log(chalk.magenta(`STUDENTS WHO DIDN'T NAME PROJECT CORRECTLY: `), FAILEDSTUDENTS);
+    log(chalk.magenta(`STUDENTS WHO DIDN'T NAME PROJECT CORRECTLY: `), FAILEDSTUDENTS.join(', '));
   }
 
   if (REJECTED > 0) {
     log(chalk.magenta(`# OF REJECTED REQUESTS: `), REJECTED);
-    log(chalk.magenta(`REJECTED REQUESTS: `), REJECTEDSTUDENTS);
+    log(chalk.magenta(`REJECTED REQUESTS: `), REJECTEDSTUDENTS.join(', '));
   }
   log(chalk.green(`------------------------------`));
 
