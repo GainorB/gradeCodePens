@@ -51,16 +51,16 @@ try {
   return handleErrors('', e.message);
 }
 
-// IF PROJECT IS FOUND INSERT INTO THIS ARRAY
-const FOUNDPROJECTS = [];
-
-// NUMBER OF FAILED PROJECTS
-let FAILEDPROJECTS = 0;
-const FAILEDSTUDENTS = [];
-
-// NUMBER OF REJECTED REQUESTS (STUDENTS)
-let REJECTED = 0;
-const REJECTEDSTUDENTS = [];
+const outputObj = {
+  // IF PROJECT IS FOUND INSERT INTO THIS ARRAY
+  FOUNDPROJECTS: [],
+  // NUMBER OF FAILED PROJECTS
+  FAILEDPROJECTS: 0,
+  FAILEDSTUDENTS: [],
+  // NUMBER OF REJECTED REQUESTS (STUDENTS THAT DON'T HAVE ANY SAVED CODEPENS)
+  REJECTED: 0,
+  REJECTEDSTUDENTS: [],
+};
 
 // FORMAT DATE TO APPEND TO FILE CREATED
 function date() {
@@ -93,7 +93,7 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
     }))[0];
 
     if (project !== undefined) {
-      FOUNDPROJECTS.push(project);
+      outputObj.FOUNDPROJECTS.push(project);
       if (openTabs.toLowerCase() === 'y') {
         // OPEN PROJECT LINK IN NEW TAB IN DEFAULT BROWSER
         opn(project.link, { wait: false });
@@ -123,12 +123,12 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
         )
         .catch(err => handleErrors('', err));
     } else {
-      FAILEDPROJECTS += 1;
-      FAILEDSTUDENTS.push({ niceName, username });
+      outputObj.FAILEDPROJECTS += 1;
+      outputObj.FAILEDSTUDENTS.push({ niceName, username, profile: `https://codepen.io/${username}` });
     }
   } else {
-    REJECTED += 1;
-    REJECTEDSTUDENTS.push({ niceName, username });
+    outputObj.REJECTED += 1;
+    outputObj.REJECTEDSTUDENTS.push({ niceName, username });
   }
 }
 
@@ -139,14 +139,14 @@ function stats(students, classNumber, jsonOrExcel, nameOfProject) {
   log(chalk.green(`${classNumber} INFORMATION`));
   log(chalk.green(`------------------------------`));
   log(chalk.magenta(`# OF STUDENTS IN CLASS: `), students.length);
-  log(chalk.magenta(`# OF FOUND PROJECTS: `), FOUNDPROJECTS.length);
+  log(chalk.magenta(`# OF FOUND PROJECTS: `), outputObj.FOUNDPROJECTS.length);
 
-  if (FAILEDPROJECTS > 0) {
-    log(chalk.magenta(`# OF STUDENTS WHO DIDN'T SUBMIT ASSIGNMENT: `), FAILEDPROJECTS);
+  if (outputObj.FAILEDPROJECTS > 0) {
+    log(chalk.magenta(`# OF STUDENTS WHO DIDN'T SUBMIT ASSIGNMENT: `), outputObj.FAILEDPROJECTS);
     const obj = {
       nameOfProject,
       date: date(),
-      noProjectsFrom: FAILEDSTUDENTS,
+      noProjectsFrom: outputObj.FAILEDSTUDENTS,
     };
     fs.appendFile(`./output/${folderName}/noProjects.json`, JSON.stringify(obj, null, 3), err => {
       if (err) handleErrors('', err);
@@ -154,15 +154,15 @@ function stats(students, classNumber, jsonOrExcel, nameOfProject) {
     });
   }
 
-  if (REJECTED > 0) {
-    log(chalk.magenta(`# OF REJECTED REQUESTS: `), REJECTED);
-    log(chalk.magenta(`REJECTED REQUESTS: `), REJECTEDSTUDENTS.join(', '));
+  if (outputObj.REJECTED > 0) {
+    log(chalk.magenta(`# OF REJECTED REQUESTS: `), outputObj.REJECTED);
+    log(chalk.magenta(`REJECTED REQUESTS: `), outputObj.REJECTEDSTUDENTS.join(', '));
   }
   log(chalk.green(`------------------------------`));
 
   // CREATE A EXCELL FILE
   if (jsonOrExcel.toLowerCase() === 'y') {
-    const xls = json2xls(FOUNDPROJECTS);
+    const xls = json2xls(outputObj.FOUNDPROJECTS);
     fs.writeFile(`./output/${folderName}/projects.xlsx`, xls, 'binary', err => {
       if (err) handleErrors('', err);
       log(`Spreadsheet created.`);
