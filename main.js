@@ -128,7 +128,7 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
     }
   } else {
     outputObj.REJECTED += 1;
-    outputObj.REJECTEDSTUDENTS.push({ niceName, username });
+    outputObj.REJECTEDSTUDENTS.push(niceName);
   }
 }
 
@@ -156,7 +156,7 @@ function stats(students, classNumber, jsonOrExcel, nameOfProject) {
 
   if (outputObj.REJECTED > 0) {
     log(chalk.magenta(`# OF REJECTED REQUESTS: `), outputObj.REJECTED);
-    log(chalk.magenta(`REJECTED REQUESTS: `), outputObj.REJECTEDSTUDENTS.join(', '));
+    log(chalk.magenta(`DON'T HAVE SAVED/PUBLIC CODEPENS: `), outputObj.REJECTEDSTUDENTS.join(', '));
   }
   log(chalk.green(`------------------------------`));
 

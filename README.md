@@ -45,7 +45,6 @@ This folder will contain a subfolder with the class number appended with a times
 
 1.  **NUMBER OF STUDENTS IN CLASS:** total number of scholars in class
 2.  **NUMBER OF FOUND PROJECTS:** total number of projects from that class that match the project you searched for
-3.  **NUMBER OF INCORRECTLY NAMED PROJECTS (NOT FOUND):** total number of scholars who incorrectly named their project
-4.  **STUDENTS WHO DIDN'T NAME PROJECT CORRECTLY:** usernames of scholars who didn't name project correctly
-5.  **NUMBER OF REJECTED REQUESTS:** total number of scholars who don't have any saved codePens
-6.  **REJECTED REQUESTS:** usernames of scholars who don't have any saved codePens
+3.  **NUMBER OF STUDENTS WHO DIDN'T SUBMIT ASSIGNMENT:** total number of scholars who incorrectly named their project
+4.  **NUMBER OF REJECTED REQUESTS:** total number of scholars who don't have any saved codePens
+5.  **DON'T HAVE SAVED/PUBLIC CODEPENS:** usernames of scholars who don't have any saved codePens
