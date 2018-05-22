@@ -124,11 +124,11 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
         .catch(err => handleErrors('', err));
     } else {
       FAILEDPROJECTS += 1;
-      FAILEDSTUDENTS.push(niceName);
+      FAILEDSTUDENTS.push({ niceName, username });
     }
   } else {
     REJECTED += 1;
-    REJECTEDSTUDENTS.push(niceName);
+    REJECTEDSTUDENTS.push({ niceName, username });
   }
 }
 
