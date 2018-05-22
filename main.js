@@ -86,7 +86,7 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
   // FILTER ARRAY OF PENS TO GET SPECIFIC PROJECT
   if (data !== undefined) {
     const project = data.filter(pen => pen.title === theKeyword).map(pen => ({
-      student: username,
+      student: { username, niceName },
       link: pen.link,
       html: `${pen.link}.html`,
       css: `${pen.link}.css`,
@@ -124,16 +124,17 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
         .catch(err => handleErrors('', err));
     } else {
       FAILEDPROJECTS += 1;
-      FAILEDSTUDENTS.push(username);
+      FAILEDSTUDENTS.push(niceName);
     }
   } else {
     REJECTED += 1;
-    REJECTEDSTUDENTS.push(username);
+    REJECTEDSTUDENTS.push(niceName);
   }
 }
 
 // STATS PRINTED TO CONSOLE
-function stats(students, classNumber, jsonOrExcel) {
+function stats(students, classNumber, jsonOrExcel, nameOfProject) {
+  const folderName = `${classNumber}-${date()}`;
   log(chalk.green(`------------------------------`));
   log(chalk.green(`${classNumber} INFORMATION`));
   log(chalk.green(`------------------------------`));
@@ -141,8 +142,16 @@ function stats(students, classNumber, jsonOrExcel) {
   log(chalk.magenta(`# OF FOUND PROJECTS: `), FOUNDPROJECTS.length);
 
   if (FAILEDPROJECTS > 0) {
-    log(chalk.magenta(`# OF INCORRECTLY NAMED PROJECTS: `), FAILEDPROJECTS);
-    log(chalk.magenta(`STUDENTS WHO DIDN'T NAME PROJECT CORRECTLY: `), FAILEDSTUDENTS.join(', '));
+    log(chalk.magenta(`# OF STUDENTS WHO DIDN'T SUBMIT ASSIGNMENT: `), FAILEDPROJECTS);
+    const obj = {
+      nameOfProject,
+      date: date(),
+      noProjectsFrom: FAILEDSTUDENTS,
+    };
+    fs.appendFile(`./output/${folderName}/noProjects.json`, JSON.stringify(obj, null, 3), err => {
+      if (err) handleErrors('', err);
+      log(`File containing students without a project created.`);
+    });
   }
 
   if (REJECTED > 0) {
@@ -154,7 +163,6 @@ function stats(students, classNumber, jsonOrExcel) {
   // CREATE A EXCELL FILE
   if (jsonOrExcel.toLowerCase() === 'y') {
     const xls = json2xls(FOUNDPROJECTS);
-    const folderName = `${classNumber}-${date()}`;
     fs.writeFile(`./output/${folderName}/projects.xlsx`, xls, 'binary', err => {
       if (err) handleErrors('', err);
       log(`Spreadsheet created.`);
@@ -195,7 +203,7 @@ function go({ classNumber, keyword, openTabs, jsonOrExcel }) {
           codePen({ data: pens.data.data, username: name, openTabs, classNumber, niceName: names.data.data.nicename });
           counter -= 1;
           if (counter === 0) {
-            stats(students, classNumber, jsonOrExcel);
+            stats(students, classNumber, jsonOrExcel, keyword);
           }
         })
       )
