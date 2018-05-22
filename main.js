@@ -85,7 +85,7 @@ function downloadCSS({ css }) {
 function codePen({ data, username, openTabs, classNumber, niceName }) {
   // FILTER ARRAY OF PENS TO GET SPECIFIC PROJECT
   if (data !== undefined) {
-    const project = data.filter(pen => pen.title === theKeyword).map(pen => ({
+    const project = data.filter(pen => pen.title.toLowerCase().trim() === theKeyword).map(pen => ({
       student: { username, niceName },
       link: pen.link,
       html: `${pen.link}.html`,
@@ -192,7 +192,7 @@ function go({ classNumber, keyword, openTabs, jsonOrExcel }) {
   counter = students.length;
 
   // KEYWORD TO SEARCH FOR
-  theKeyword = keyword;
+  theKeyword = keyword.toLowerCase();
 
   // LOOP THROUGH STUDENTS AND HIT API
   students.forEach(name => {
