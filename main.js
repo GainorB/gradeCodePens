@@ -81,6 +81,13 @@ function downloadCSS({ css }) {
   });
 }
 
+// CREATE OUTPUT FOLDER IF IT DOESN'T EXIST
+function checkForFolder(name) {
+  if (!fs.existsSync(`output/${name}`)) {
+    fs.mkdirSync(`output/${name}`);
+  }
+}
+
 // PARSE AND FILTER DATA FROM API
 function codePen({ data, username, openTabs, classNumber, niceName }) {
   // FILTER ARRAY OF PENS TO GET SPECIFIC PROJECT
@@ -100,15 +107,8 @@ function codePen({ data, username, openTabs, classNumber, niceName }) {
       }
 
       // CREATE OUTPUT FOLDER IF IT DOESN'T EXIST
-      if (!fs.existsSync('output')) {
-        fs.mkdirSync('output');
-      }
-
       const folderName = `${classNumber}-${date()}`;
-
-      if (!fs.existsSync(`output/${folderName}`)) {
-        fs.mkdirSync(`output/${folderName}`);
-      }
+      checkForFolder(folderName);
 
       axios
         .all([downloadHTML(project), downloadCSS(project)])
@@ -148,7 +148,8 @@ function stats(students, classNumber, jsonOrExcel, nameOfProject) {
       date: date(),
       noProjectsFrom: outputObj.FAILEDSTUDENTS,
     };
-    fs.appendFile(`./output/${folderName}/noProjects.json`, JSON.stringify(obj, null, 3), err => {
+    checkForFolder(folderName);
+    fs.appendFileSync(`./output/${folderName}/noProjects.json`, JSON.stringify(obj, null, 3), err => {
       if (err) handleErrors('', err);
       log(`File containing students without a project created.`);
     });
